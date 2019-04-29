@@ -1,0 +1,6 @@
+C:\Users\Viki\Source\Repos\MobileMessageDecoder\MobileMessageDecoder\bin\Release\MobileMessageDecoder.exe.config
+C:\Users\Viki\Source\Repos\MobileMessageDecoder\MobileMessageDecoder\bin\Release\MobileMessageDecoder.exe
+C:\Users\Viki\Source\Repos\MobileMessageDecoder\MobileMessageDecoder\bin\Release\MobileMessageDecoder.pdb
+C:\Users\Viki\Source\Repos\MobileMessageDecoder\MobileMessageDecoder\obj\Release\MobileMessageDecoder.csproj.CoreCompileInputs.cache
+C:\Users\Viki\Source\Repos\MobileMessageDecoder\MobileMessageDecoder\obj\Release\MobileMessageDecoder.exe
+C:\Users\Viki\Source\Repos\MobileMessageDecoder\MobileMessageDecoder\obj\Release\MobileMessageDecoder.pdb

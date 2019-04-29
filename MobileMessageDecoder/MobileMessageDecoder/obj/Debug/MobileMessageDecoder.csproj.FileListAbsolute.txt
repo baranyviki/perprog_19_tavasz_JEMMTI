@@ -1,0 +1,14 @@
+C:\Users\Viki\Source\Repos\MobileMessageDecoder\MobileMessageDecoder\bin\Debug\MobileMessageDecoder.exe.config
+C:\Users\Viki\Source\Repos\MobileMessageDecoder\MobileMessageDecoder\bin\Debug\MobileMessageDecoder.exe
+C:\Users\Viki\Source\Repos\MobileMessageDecoder\MobileMessageDecoder\bin\Debug\MobileMessageDecoder.pdb
+C:\Users\Viki\Source\Repos\MobileMessageDecoder\MobileMessageDecoder\obj\Debug\MobileMessageDecoder.csprojAssemblyReference.cache
+C:\Users\Viki\Source\Repos\MobileMessageDecoder\MobileMessageDecoder\obj\Debug\MobileMessageDecoder.csproj.CoreCompileInputs.cache
+C:\Users\Viki\Source\Repos\MobileMessageDecoder\MobileMessageDecoder\obj\Debug\MobileMessageDecoder.exe
+C:\Users\Viki\Source\Repos\MobileMessageDecoder\MobileMessageDecoder\obj\Debug\MobileMessageDecoder.pdb
+c:\stuff\01_NIK\6\perprog\MobileMessageDecoder\MobileMessageDecoder\bin\Debug\MobileMessageDecoder.exe.config
+c:\stuff\01_NIK\6\perprog\MobileMessageDecoder\MobileMessageDecoder\bin\Debug\MobileMessageDecoder.exe
+c:\stuff\01_NIK\6\perprog\MobileMessageDecoder\MobileMessageDecoder\bin\Debug\MobileMessageDecoder.pdb
+c:\stuff\01_NIK\6\perprog\MobileMessageDecoder\MobileMessageDecoder\obj\Debug\MobileMessageDecoder.csprojAssemblyReference.cache
+c:\stuff\01_NIK\6\perprog\MobileMessageDecoder\MobileMessageDecoder\obj\Debug\MobileMessageDecoder.csproj.CoreCompileInputs.cache
+c:\stuff\01_NIK\6\perprog\MobileMessageDecoder\MobileMessageDecoder\obj\Debug\MobileMessageDecoder.exe
+c:\stuff\01_NIK\6\perprog\MobileMessageDecoder\MobileMessageDecoder\obj\Debug\MobileMessageDecoder.pdb
