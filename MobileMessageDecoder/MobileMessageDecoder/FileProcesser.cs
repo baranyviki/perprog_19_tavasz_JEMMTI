@@ -119,14 +119,17 @@ namespace MobileMessageDecoder
         }
         public void WriteToFile(IEnumerable<string> message)
         {
-            string s = "";
+            //string s = "";
+            //foreach (var item in message)
+            //{
+            //     s += item + " ";
+            //}
+            //s = s.TrimEnd(' ');
+
             foreach (var item in message)
             {
-                s += item + "|";
+                Writer.WriteLine(item);
             }
-            s = s.TrimEnd('|');
-
-            Writer.WriteLine(s);
         }
     }
 }

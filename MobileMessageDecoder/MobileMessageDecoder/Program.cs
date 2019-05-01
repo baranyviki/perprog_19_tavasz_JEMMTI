@@ -10,21 +10,34 @@ namespace MobileMessageDecoder
     {
         static void Main(string[] args)
         {
-           var fp= new FileProcesser("wordsEn.txt", "writeThis.txt");
-            SequentialSolver s = new SequentialSolver(fp);
-          
-            var list = s.DecodeNumberMessage("96846862459685488537263");
+            var fp = new FileProcesser("wordsEn.txt", "output.txt");
+            //SequentialSolver s = new SequentialSolver(fp);
+            //var list = s.DecodeNumberMessage("73255956646377243332633");
+
+            ParallelSolver plSolver = new ParallelSolver(fp);
+            var list = plSolver.DecodeNumberMessage("73255956646377243863326");
+
             foreach (var item in list)
             {
-                Console.WriteLine(item);
-            }
+                fp.Writer.WriteLine(item);
 
+            }
             Console.WriteLine("divisions done");
+
+            Console.WriteLine("sequential:");
+            SequentialSolver s = new SequentialSolver(fp);
+            var seqquentlist = s.DecodeNumberMessage("8447477272553567899");
+            
+            foreach (var item in seqquentlist)
+            {
+                fp.Writer.WriteLine(item);
+            }
+            Console.WriteLine("divisions done");
+
+
             Console.ReadLine();
 
         }
-
-        //notmine 
-
+       
     }
 }

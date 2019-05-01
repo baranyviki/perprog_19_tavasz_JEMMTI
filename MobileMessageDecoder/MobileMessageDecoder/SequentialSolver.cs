@@ -49,6 +49,7 @@ namespace MobileMessageDecoder
 
         public List<string> DecodeNumberMessage(string messageInNumbers)
         {
+            Console.WriteLine("Message size: {0}", messageInNumbers.Length);
             //List<List<string>> searchSpace =GetAllDivisons(messageInNumbers);
 
             ////StreamReader sr = new StreamReader(fp.WriteTofilePath);
@@ -73,7 +74,7 @@ namespace MobileMessageDecoder
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             List<List<string>> searchSpace = GetAllDivisons(messageInNumbers);
-            Console.WriteLine("All divisions computed in: {0} ms",stopwatch.ElapsedMilliseconds);
+            Console.WriteLine("Search space generated in: {0} ms",stopwatch.ElapsedMilliseconds);
             stopwatch.Restart();
             List<List<string>> solutions = new List<List<string>>();
 
@@ -93,13 +94,15 @@ namespace MobileMessageDecoder
                     solutions.Add(oneSolution);
                 }
             }
-            Console.WriteLine("Finding solutions in all search space: {0} ms",stopwatch.ElapsedMilliseconds);
-            Console.WriteLine("Search space size: {0}",searchSpace.Count);
-            Console.WriteLine("Solution candidates size: {0}",solutions.Count);
+            Console.WriteLine("Validate search candidates: {0} ms",stopwatch.ElapsedMilliseconds);
             stopwatch.Restart();
             var ret=  EncodeMessage(solutions);
             Console.WriteLine("Encode possible solutions to messages in: {0} ms", stopwatch.ElapsedMilliseconds);
+            Console.WriteLine("Search space size: {0}", searchSpace.Count);
+            Console.WriteLine("Solution candidates size: {0}", solutions.Count);
             Console.WriteLine("All solution messages count: {0}", ret.Count);
+            fp.WriteTofilePath = "solutions";
+            fp.WriteToFile(ret);
             return ret;
         }
 
@@ -148,10 +151,15 @@ namespace MobileMessageDecoder
         public List<List<string>> GetAllDivisons(string messageNumbers)
         {
             List<List<string>> allDivisions = new List<List<string>>();
+            // Parallel.For(1, messageNumbers.Length, i =>
+            //{
+            //    allDivisions.AddRange(GetCombinationsWithXSeparators(i, messageNumbers));
+            //});
             for (int i = 1; i < messageNumbers.Length; i++)
             {
-                allDivisions.AddRange( GetCombinationsWithXSeparators(i, messageNumbers));
+                allDivisions.AddRange(GetCombinationsWithXSeparators(i, messageNumbers));
             }
+
             allDivisions.Add(new List<string>() { messageNumbers });
 
             return allDivisions;
@@ -161,13 +169,33 @@ namespace MobileMessageDecoder
         {
             List<List<string>> divisions = new List<List<string>>();
             var combinations = Combinations(numbers.Length - 1, sepCount);
+
             foreach (var oneCombination in combinations)
             {
-                //fp.WriteToFile(numbers.SplitAt(oneCombination));
-                divisions.Add(numbers.SplitAt(oneCombination).ToList());
+                var divs = numbers.SplitAt(oneCombination).ToList();
+                divisions.Add(divs);
             }
+            
             return divisions;
 
+        }
+
+        private string[] SplitAt(string source, int[] index)
+        {
+            Array.Sort(index);
+            string[] output = new string[index.Length + 1];
+            int pos = 0;
+
+            for (int i = 0; i < index.Length; pos = index[i++])
+            {
+                output[i] = source.Substring(pos, index[i] - pos);
+                if (!fp.WordsDict.ContainsKey(output[i]))
+                {
+                    return null;
+                }
+            }
+            output[index.Length] = source.Substring(pos);
+            return output;
         }
 
         private List<int[]> Permutations(int[] set)
