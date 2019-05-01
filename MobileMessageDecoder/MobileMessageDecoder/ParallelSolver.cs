@@ -22,7 +22,7 @@ namespace MobileMessageDecoder
             this.fp = fp;
         }
 
-        public List<string> DecodeNumberMessage(string messageInNumbers)
+        public BlockingCollection<string> DecodeNumberMessage(string messageInNumbers)
         {
             Console.WriteLine("Message size: {0}", messageInNumbers.Length);
             Stopwatch stopwatch = new Stopwatch();
@@ -46,10 +46,9 @@ namespace MobileMessageDecoder
             Console.WriteLine("Encode possible solutions to messages in: {0} ms", stopwatch.ElapsedMilliseconds);
             Console.WriteLine("Search space size: {0}", allDividers.Count);
             Console.WriteLine("Solution candidates size: {0}", solutionCandidates.Count);
-            Console.WriteLine("All solution messages count: {0}", ret.Count);
-            fp.WriteTofilePath = "solutions";
-            fp.WriteToFile(ret);
-            return ret;
+            Console.WriteLine("All solution messages count: {0}", encodedSolutions.Count);
+
+            return encodedSolutions;
         }
 
         private BlockingCollection<string> EncodeMessage(BlockingCollection<string[]> possibilities)

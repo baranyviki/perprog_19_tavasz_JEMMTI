@@ -11,31 +11,23 @@ namespace MobileMessageDecoder
     {
         Dictionary<string, List<string>> wordsDict;
         Dictionary<char, int> charNumbers;
-        string writeTofilePath;
-        StreamWriter writer; 
-        public Dictionary<string, List<string>> WordsDict { get => wordsDict; set => wordsDict = value; }
-        public StreamWriter Writer { get => writer; set => writer = value; }
-        public string WriteTofilePath { get => writeTofilePath; set => writeTofilePath = value; }
 
-        public FileProcesser(string allWordsPath, string writeTofilePath)
+        public Dictionary<string, List<string>> WordsDict { get => wordsDict; set => wordsDict = value; }
+
+        public FileProcesser(string allWordsPath)
         {
-            this.writeTofilePath = writeTofilePath;
-            if (File.Exists(writeTofilePath))
-            {
-                File.Delete(writeTofilePath);
-            }
-            Writer = File.AppendText(writeTofilePath);
             WordsDict = new Dictionary<string, List<string>>();
             charNumbers = NumberButtonsWithChar();
 
-            string[] rawWords = File.ReadAllLines(allWordsPath,Encoding.UTF8);
+            string[] rawWords = File.ReadAllLines(allWordsPath, Encoding.UTF8);
             CleanUpWords(rawWords);
-            
-            foreach (var word  in rawWords)
+
+            foreach (var word in rawWords)
             {
-                AddToWordDict(word2Number(word), word);
+                AddToWordDict(Word2Number(word), word);
             }
-            Console.WriteLine("Word processing is done");
+
+            //Console.WriteLine("Word dictionary processing is done");
         }
 
         private void AddToWordDict(string key, string value)
@@ -44,7 +36,8 @@ namespace MobileMessageDecoder
             {
                 WordsDict[key].Add(value);
             }
-            else {
+            else
+            {
                 WordsDict[key] = new List<string>();
                 WordsDict[key].Add(value);
             }
@@ -58,9 +51,9 @@ namespace MobileMessageDecoder
             }
         }
 
-        private string word2Number(string oneWord)
+        private string Word2Number(string oneWord)
         {
-            string key="";
+            string key = "";
 
             foreach (var letter in oneWord)
             {
@@ -101,35 +94,32 @@ namespace MobileMessageDecoder
             return dict;
         }
 
-        public override string ToString()
-        {
-            return base.ToString();
-        }
-        public void ToConsole()
+        public void WordsDictToConsole()
         {
             foreach (var item in WordsDict)
             {
                 Console.Write(item.Key + ": ");
                 foreach (var value in item.Value)
                 {
-                    Console.Write(value+", ");
+                    Console.Write(value + ", ");
                 }
                 Console.Write("\r\n");
             }
         }
-        public void WriteToFile(IEnumerable<string> message)
+
+        public static void WriteToFile(IEnumerable<string> message, string fileName)
         {
-            //string s = "";
-            //foreach (var item in message)
-            //{
-            //     s += item + " ";
-            //}
-            //s = s.TrimEnd(' ');
+            if (File.Exists(fileName))
+            {
+                File.Delete(fileName);
+            }
+            var writer = File.AppendText(fileName);
 
             foreach (var item in message)
             {
-                Writer.WriteLine(item);
+                writer.WriteLine(item);
             }
+            writer.Close();
         }
     }
 }
