@@ -12,6 +12,10 @@ namespace MobileMessageDecoder
     class ParallelSolver
     {
         FileProcesser fp;
+        BlockingCollection<string[]> solutionCandidates;
+        BlockingCollection<string> encodedSolutions;
+        BlockingCollection<int[]> allDividers;
+        
 
         public ParallelSolver(FileProcesser fp)
         {
@@ -23,40 +27,13 @@ namespace MobileMessageDecoder
             Console.WriteLine("Message size: {0}", messageInNumbers.Length);
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            BlockingCollection<string[]> searchSpace = GetAllDivisons(messageInNumbers);
+            /**/
+            solutionCandidates = GetAllDivisons(messageInNumbers);
 
             Console.WriteLine("Search space generated in: {0} ms", stopwatch.ElapsedMilliseconds);
             stopwatch.Restart();
-
-            BlockingCollection<string[]> solutions = searchSpace;
-
-            //int i;
-            //List<string> oneSolution;
-            //foreach (var solutionCandidate in searchSpace)
-            //{
-            //    i = 0;
-            //    while (i < solutionCandidate.Length && fp.WordsDict.ContainsKey(solutionCandidate[i]))
-            //    {
-            //        i++;
-
-            //    }
-            //    if (i >= solutionCandidate.Length)
-            //    {
-            //        oneSolution = new List<string>();
-            //        foreach (var scpart in solutionCandidate)
-            //        {
-            //            oneSolution.Add(scpart);
-            //        }
-
-            //        solutions.Add(oneSolution);
-            //    }
-            //    else {
-            //        Console.WriteLine(i);
-            //        Console.WriteLine(solutionCandidate);
-            //    }
-            //}
-
-            Console.WriteLine("Validate search candidates: {0} ms", stopwatch.ElapsedMilliseconds);
+                        
+            //Console.WriteLine("Validate search candidates: {0} ms", stopwatch.ElapsedMilliseconds);
             var csd =  combinationTimes.Select(y => new { n= int.Parse(y.Split(';')[0]), ms = y.Split(';')[1] }).OrderBy(x => x.n).ToList();
             foreach (var item in csd)
             {
@@ -64,23 +41,23 @@ namespace MobileMessageDecoder
             }
 
             stopwatch.Restart();
-            var ret = EncodeMessage(solutions);
+            /**/
+            encodedSolutions = EncodeMessage(solutionCandidates);
             Console.WriteLine("Encode possible solutions to messages in: {0} ms", stopwatch.ElapsedMilliseconds);
-            Console.WriteLine("Search space size: {0}", searchSpace.Count);
-            Console.WriteLine("Solution candidates size: {0}", solutions.Count);
+            Console.WriteLine("Search space size: {0}", allDividers.Count);
+            Console.WriteLine("Solution candidates size: {0}", solutionCandidates.Count);
             Console.WriteLine("All solution messages count: {0}", ret.Count);
             fp.WriteTofilePath = "solutions";
             fp.WriteToFile(ret);
             return ret;
         }
 
-        private List<string> EncodeMessage(BlockingCollection<string[]> possibilities)
+        private BlockingCollection<string> EncodeMessage(BlockingCollection<string[]> possibilities)
         {
-            List<string> encoded = new List<string>();
+            BlockingCollection<string> encoded = new BlockingCollection<string>();
             foreach (var list in possibilities)
             {
-                List<string> others = new List<string>();
-
+                
                 int[] allCounts = new int[list.Count()];
                 for (int i = 0; i < list.Count(); i++)
                 {
@@ -96,18 +73,18 @@ namespace MobileMessageDecoder
                         int dictListIdx = allPermutations[j][k]; //j-ik permutáció k-ik eleme a szólista indexe
                         one += fp.WordsDict[list[k]][dictListIdx] + " ";
                     }
-                    others.Add(one);
+                    encoded.Add(one);
                 }
-                encoded.AddRange(others);
             }
             return encoded;
         }
 
+
+
+
         public BlockingCollection<string[]> GetAllDivisons(string messageNumbers)
         {
-            BlockingCollection<int[]> allDividers = new BlockingCollection<int[]>();
-            BlockingCollection<string[]> allDivisions = new BlockingCollection<string[]>();
-
+            
             Parallel.For(1, messageNumbers.Length, i =>
             {
                 var c = Combinations(messageNumbers.Length - 1, i);
@@ -119,20 +96,19 @@ namespace MobileMessageDecoder
             });
 
             // fileprocesserre innentol van szukseg
-            //versenyhelyzet??
             Parallel.ForEach(allDividers, oneDivider =>
             {
                 var c = SplitAt(messageNumbers, oneDivider);
                 if (c != null)
                 {
-                    allDivisions.TryAdd(c);
+                    solutionCandidates.TryAdd(c);
                 }
             });
 
             if (fp.WordsDict.ContainsKey(messageNumbers))
-                allDivisions.TryAdd(new string[] { messageNumbers });
+                solutionCandidates.TryAdd(new string[] { messageNumbers });
 
-            return allDivisions;
+            return solutionCandidates;
         }
 
 
@@ -194,6 +170,8 @@ namespace MobileMessageDecoder
 
         private static object lockobject = new object();
         List<string> combinationTimes = new List<string>();
+        
+        
         //https://www.videlin.eu/2016/04/10/how-to-generate-combinations-without-repetition-interatively-in-c/
         private List<int[]> Combinations(int n, int k)
         {

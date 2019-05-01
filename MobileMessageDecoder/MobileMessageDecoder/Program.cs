@@ -15,7 +15,7 @@ namespace MobileMessageDecoder
             //var list = s.DecodeNumberMessage("73255956646377243332633");
 
             ParallelSolver plSolver = new ParallelSolver(fp);
-            var list = plSolver.DecodeNumberMessage("73255956646377243863326");
+            var list = plSolver.DecodeNumberMessage("7325595664637888888888888");
 
             foreach (var item in list)
             {
