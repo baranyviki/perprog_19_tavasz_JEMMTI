@@ -76,6 +76,7 @@ namespace MobileMessageDecoder
             List<List<string>> searchSpace = GetAllDivisons(messageInNumbers);
             Console.WriteLine("Search space generated in: {0} ms",stopwatch.ElapsedMilliseconds);
             stopwatch.Restart();
+
             List<List<string>> solutions = new List<List<string>>();
 
             int i;
@@ -101,8 +102,6 @@ namespace MobileMessageDecoder
             Console.WriteLine("Search space size: {0}", searchSpace.Count);
             Console.WriteLine("Solution candidates size: {0}", solutions.Count);
             Console.WriteLine("All solution messages count: {0}", ret.Count);
-            fp.WriteTofilePath = "solutions";
-            fp.WriteToFile(ret);
             return ret;
         }
 
@@ -136,25 +135,9 @@ namespace MobileMessageDecoder
             return encoded;
         }
 
-        public void WriteAllDivisons(string messageNumbers)
-        {
-
-            for (int i = 1; i < messageNumbers.Length; i++)
-            {
-                var combs = GetCombinationsWithXSeparators(i, messageNumbers);
-                combs.ForEach(x => fp.WriteToFile(x));
-            }
-            fp.WriteToFile(new List<string>() { messageNumbers });
-            fp.Writer.Close();
-        }
-
         public List<List<string>> GetAllDivisons(string messageNumbers)
         {
             List<List<string>> allDivisions = new List<List<string>>();
-            // Parallel.For(1, messageNumbers.Length, i =>
-            //{
-            //    allDivisions.AddRange(GetCombinationsWithXSeparators(i, messageNumbers));
-            //});
             for (int i = 1; i < messageNumbers.Length; i++)
             {
                 allDivisions.AddRange(GetCombinationsWithXSeparators(i, messageNumbers));
