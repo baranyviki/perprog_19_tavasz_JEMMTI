@@ -24,22 +24,28 @@ namespace MobileMessageDecoder
             this.fp = fp;
         }
 
-        private void Worker(List<int> k, string message)
+        private void Worker(List<int> k, string message, Dictionary<string, List<string>> dict)
         {
             foreach (var item in k)
             {
-                var dividers = Combinations(message.Length-1, item);
                 List<string[]> solutions = new List<string[]>();
+
+                if (item == message.Length && dict.ContainsKey(message))
+                { //edge case> if the whole message is in the dict
+                    solutions.Add(new string[] { message });
+                }
+
+                var dividers = Combinations(message.Length - 1, item);
 
                 foreach (var c in dividers)
                 {
-                    var sp = SplitAt(message, c);
+                    var sp = SplitAt(message, c, dict);
                     if (sp != null)
                     {
                         solutions.Add(sp);
                     }
                 }
-                
+
                 foreach (var s in solutions)
                 {
                     /*var decodedmsg = */
@@ -63,7 +69,7 @@ namespace MobileMessageDecoder
             }
 
             int x = 0;
-            for (int i = 1; i < N; i++)
+            for (int i = 1; i <= N; i++)
             {
                 if (x >= taskCount)
                     x = 0;
@@ -88,7 +94,7 @@ namespace MobileMessageDecoder
                 taskList.Add(
                     new Task(() =>
                     {
-                        Worker(item, messageNumbers);
+                        Worker(item, messageNumbers, fp.WordsDict);
                     }
                     ));
             }
@@ -102,8 +108,9 @@ namespace MobileMessageDecoder
             await Task.WhenAll(taskList).ContinueWith(
                x =>
                {
-                   Console.WriteLine("Its done");
-                   FileProcesser.WriteToFile(decodedSolutions, "sajatLoadBalanceres.txt");
+                   Console.WriteLine("All task has finished");
+
+                   //FileProcesser.WriteToFile(decodedSolutions, "sajatLoadBalanceres.txt");
 
                });
 
@@ -114,21 +121,21 @@ namespace MobileMessageDecoder
 
         public BlockingCollection<string> DecodeNumberMessageWithLoopParallelism(string messageInNumbers)
         {
-            Console.WriteLine("Message size: {0}", messageInNumbers.Length);
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
+            //Console.WriteLine("Message size: {0}", messageInNumbers.Length);
+            //Stopwatch stopwatch = new Stopwatch();
+            //stopwatch.Start();
 
             SetAllDividers(messageInNumbers);
             SetAllDivisions(messageInNumbers);
 
-            Console.WriteLine("Search space generated in: {0} ms", stopwatch.ElapsedMilliseconds);
-            stopwatch.Restart();
+            //Console.WriteLine("Search space generated in: {0} ms", stopwatch.ElapsedMilliseconds);
+            //stopwatch.Restart();
 
             SetAllDecodedMessages(solutionCandidates);
-            Console.WriteLine("Encode possible solutions to messages in: {0} ms", stopwatch.ElapsedMilliseconds);
-            Console.WriteLine("Search space size: {0}", allDividers.Count);
-            Console.WriteLine("Solution candidates size: {0}", solutionCandidates.Count);
-            Console.WriteLine("All solution messages count: {0}", decodedSolutions.Count);
+            //Console.WriteLine("Encode possible solutions to messages in: {0} ms", stopwatch.ElapsedMilliseconds);
+            //Console.WriteLine("Search space size: {0}", allDividers.Count + 1 ); //because the one with the whole word that doesnt need sep
+            //Console.WriteLine("Solution candidates size: {0}", solutionCandidates.Count);
+            //Console.WriteLine("All solution messages count: {0}", decodedSolutions.Count);
 
             return decodedSolutions;
         }
@@ -144,10 +151,11 @@ namespace MobileMessageDecoder
 
         private void SetAllDecodedMessages(IEnumerable<string[]> numCodedMessages)
         {
-            Parallel.ForEach(numCodedMessages, nums => {
+            Parallel.ForEach(numCodedMessages, nums =>
+            {
                 SetDecodedMessage(nums);
             });
-        } 
+        }
 
         private void SetDecodedMessage(string[] numCodedMessage)
         {
@@ -169,40 +177,13 @@ namespace MobileMessageDecoder
                 decodedSolutions.TryAdd(one);
             }
         }
-
-        //private BlockingCollection<string> DecodeMessages(IEnumerable<string[]> possibilities)
-        //{
-        //    BlockingCollection<string> encoded = new BlockingCollection<string>();
-        //    foreach (var list in possibilities)
-        //    {
-
-        //        int[] allCounts = new int[list.Count()];
-        //        for (int i = 0; i < list.Count(); i++)
-        //        {
-        //            allCounts[i] = fp.WordsDict[list[i]].Count;
-        //        }
-
-        //        List<int[]> allPermutations = Permutations(allCounts);
-        //        for (int j = 0; j < allPermutations.Count; j++)
-        //        {
-        //            string one = "";
-        //            for (int k = 0; k < allPermutations[j].Length; k++) //ezt kell a list-el együtt indexelni
-        //            {
-        //                int dictListIdx = allPermutations[j][k]; //j-ik permutáció k-ik eleme a szólista indexe
-        //                one += fp.WordsDict[list[k]][dictListIdx] + " ";
-        //            }
-        //            encoded.Add(one);
-        //        }
-        //    }
-        //    return encoded;
-        //}
-
+        
 
         private void SetAllDivisions(string messageNumbers)
         {
             Parallel.ForEach(allDividers, oneDivider =>
             {
-                var c = SplitAt(messageNumbers, oneDivider);
+                var c = SplitAt(messageNumbers, oneDivider, fp.WordsDict);
                 if (c != null)
                 {
                     solutionCandidates.TryAdd(c);
@@ -216,7 +197,6 @@ namespace MobileMessageDecoder
 
         private void SetAllDividers(string messageNumbers)
         {
-
             Parallel.For(1, messageNumbers.Length, i =>
             {
                 var c = Combinations(messageNumbers.Length - 1, i);
@@ -226,13 +206,11 @@ namespace MobileMessageDecoder
 
                 }
             });
-
-            // fileprocesserre innentol van szukseg
-
+            
         }
 
 
-        private string[] SplitAt(string source, int[] index)
+        private string[] SplitAt(string source, int[] index, Dictionary<string, List<string>> dict)
         {
             Array.Sort(index);
             string[] output = new string[index.Length + 1];
@@ -242,14 +220,14 @@ namespace MobileMessageDecoder
             {
 
                 output[i] = source.Substring(pos, index[i] - pos);
-                if (!fp.WordsDict.ContainsKey(output[i]))
+                if (!dict.ContainsKey(output[i]))
                 {
                     return null;
                 }
                 pos = index[i];
             }
             output[index.Length] = source.Substring(pos);
-            if (!fp.WordsDict.ContainsKey(output[index.Length]))
+            if (!dict.ContainsKey(output[index.Length]))
             {
                 return null;
             }

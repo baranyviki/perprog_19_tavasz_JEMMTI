@@ -49,63 +49,27 @@ namespace MobileMessageDecoder
 
         public List<string> DecodeNumberMessage(string messageInNumbers)
         {
-            Console.WriteLine("Message size: {0}", messageInNumbers.Length);
-            //List<List<string>> searchSpace =GetAllDivisons(messageInNumbers);
+            //Console.WriteLine("Message size: {0}", messageInNumbers.Length);
 
-            ////StreamReader sr = new StreamReader(fp.WriteTofilePath);
+            //Stopwatch stopwatch = new Stopwatch();
+            //stopwatch.Start();
+            List<string[]> solutions = GetAllDivisons(messageInNumbers);
+            //Console.WriteLine("Search space generated in: {0} ms",stopwatch.ElapsedMilliseconds);
+            //stopwatch.Restart();
 
-            //List<List<string>> possibleSolutions = new List<List<string>>();
-            //while (!sr.EndOfStream)
-            //{
-            //    string oneSub = sr.ReadLine();
-            //    var subs = oneSub.Split('|');
-            //    int i = 0;
-            //    List<string> onemessage = new List<string>();
-            //    while (i < subs.Count() && fp.WordsDict.ContainsKey(subs[i]))
-            //    {
-            //        onemessage.Add(subs[i]);
-            //        i++;
-            //    }
-            //    if (i >= subs.Count())
-            //    {
-            //        possibleSolutions.Add(onemessage);
-            //    }
-            //}
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-            List<List<string>> searchSpace = GetAllDivisons(messageInNumbers);
-            Console.WriteLine("Search space generated in: {0} ms",stopwatch.ElapsedMilliseconds);
-            stopwatch.Restart();
 
-            List<List<string>> solutions = new List<List<string>>();
 
-            int i;
-            List<string> oneSolution;
-            foreach (var solutionCandidate in searchSpace)
-            {
-                i = 0;
-                while (i < solutionCandidate.Count && fp.WordsDict.ContainsKey(solutionCandidate[i]))
-                {
-                    i++;
-                }
-                if (i >= solutionCandidate.Count)
-                {
-                    oneSolution = new List<string>();
-                    solutionCandidate.ForEach(x => oneSolution.Add(x));
-                    solutions.Add(oneSolution);
-                }
-            }
-            Console.WriteLine("Validate search candidates: {0} ms",stopwatch.ElapsedMilliseconds);
-            stopwatch.Restart();
-            var ret=  EncodeMessage(solutions);
-            Console.WriteLine("Encode possible solutions to messages in: {0} ms", stopwatch.ElapsedMilliseconds);
-            Console.WriteLine("Search space size: {0}", searchSpace.Count);
-            Console.WriteLine("Solution candidates size: {0}", solutions.Count);
-            Console.WriteLine("All solution messages count: {0}", ret.Count);
+            //Console.WriteLine("Validate search candidates: {0} ms",stopwatch.ElapsedMilliseconds);
+            //stopwatch.Restart();
+            var ret = EncodeMessage(solutions);
+            //Console.WriteLine("Encode possible solutions to messages in: {0} ms", stopwatch.ElapsedMilliseconds);
+            //Console.WriteLine("Search space size: {0}", searchSpace.Count);
+            //Console.WriteLine("Solution candidates size: {0}", solutions.Count);
+            //Console.WriteLine("All solution messages count: {0}", ret.Count);
             return ret;
         }
 
-        private List<string> EncodeMessage(List<List<string>> possibilities)
+        private List<string> EncodeMessage(List<string[]> possibilities)
         {
             List<string> encoded = new List<string>();
             foreach (var list in possibilities)
@@ -113,8 +77,8 @@ namespace MobileMessageDecoder
                 List<string> others = new List<string>();
 
 
-                int[] allCounts = new int[list.Count];
-                for (int i = 0; i < list.Count; i++)
+                int[] allCounts = new int[list.Length];
+                for (int i = 0; i < list.Length; i++)
                 {
                     allCounts[i] = fp.WordsDict[list[i]].Count;
                 }
@@ -135,30 +99,34 @@ namespace MobileMessageDecoder
             return encoded;
         }
 
-        public List<List<string>> GetAllDivisons(string messageNumbers)
+        public List<string[]> GetAllDivisons(string messageNumbers)
         {
-            List<List<string>> allDivisions = new List<List<string>>();
+            List<string[]> allDivisions = new List<string[]>();
             for (int i = 1; i < messageNumbers.Length; i++)
             {
                 allDivisions.AddRange(GetCombinationsWithXSeparators(i, messageNumbers));
             }
-
-            allDivisions.Add(new List<string>() { messageNumbers });
-
+            if (fp.WordsDict.ContainsKey(messageNumbers))
+            {
+                allDivisions.Add(new string[] { messageNumbers });
+            }
             return allDivisions;
         }
 
-        private List<List<string>> GetCombinationsWithXSeparators(int sepCount, string numbers)
+        private List<string[]> GetCombinationsWithXSeparators(int sepCount, string numbers)
         {
-            List<List<string>> divisions = new List<List<string>>();
+            List<string[]> divisions = new List<string[]>();
             var combinations = Combinations(numbers.Length - 1, sepCount);
 
             foreach (var oneCombination in combinations)
             {
-                var divs = numbers.SplitAt(oneCombination).ToList();
-                divisions.Add(divs);
+                var divs = SplitAt(numbers, oneCombination);
+                if (divs != null)
+                {
+                    divisions.Add(divs);
+                }
             }
-            
+
             return divisions;
 
         }
@@ -178,6 +146,10 @@ namespace MobileMessageDecoder
                 }
             }
             output[index.Length] = source.Substring(pos);
+            if (!fp.WordsDict.ContainsKey(output[index.Length]))
+            {
+                return null;
+            }
             return output;
         }
 
