@@ -54,16 +54,16 @@ namespace MobileMessageDecoder
             //Stopwatch stopwatch = new Stopwatch();
             //stopwatch.Start();
             List<string[]> solutions = GetAllDivisons(messageInNumbers);
-            //Console.WriteLine("Search space generated in: {0} ms",stopwatch.ElapsedMilliseconds);
+            //Console.WriteLine("Search space generated in: {0} ms", stopwatch.ElapsedMilliseconds);
             //stopwatch.Restart();
 
 
 
-            //Console.WriteLine("Validate search candidates: {0} ms",stopwatch.ElapsedMilliseconds);
+            //Console.WriteLine("Validate search candidates: {0} ms", stopwatch.ElapsedMilliseconds);
             //stopwatch.Restart();
             var ret = EncodeMessage(solutions);
             //Console.WriteLine("Encode possible solutions to messages in: {0} ms", stopwatch.ElapsedMilliseconds);
-            //Console.WriteLine("Search space size: {0}", searchSpace.Count);
+            //Console.WriteLine("Search space size: {0}", solutions.Count);
             //Console.WriteLine("Solution candidates size: {0}", solutions.Count);
             //Console.WriteLine("All solution messages count: {0}", ret.Count);
             return ret;

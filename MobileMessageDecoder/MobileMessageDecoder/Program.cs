@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -49,9 +50,8 @@ namespace MobileMessageDecoder
 
         static void Main(string[] args)
         {
-            //73255956646377243863326339324
-            string encoded = "7325595664637724386332";
-            int taskCount = 8;
+            string encoded = ConfigurationManager.AppSettings["messageInput"];
+            int taskCount = int.Parse(ConfigurationManager.AppSettings["parallelismSize"]);
 
             Console.WriteLine("Run times for input with {0} length" , encoded.Length);
 

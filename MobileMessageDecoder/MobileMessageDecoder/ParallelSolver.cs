@@ -95,7 +95,7 @@ namespace MobileMessageDecoder
                     new Task(() =>
                     {
                         Worker(item, messageNumbers, fp.WordsDict);
-                    }
+                    },TaskCreationOptions.LongRunning
                     ));
             }
 
@@ -131,6 +131,10 @@ namespace MobileMessageDecoder
             //Console.WriteLine("Search space generated in: {0} ms", stopwatch.ElapsedMilliseconds);
             //stopwatch.Restart();
 
+            //var toConsole = combinationTimes.Select(x => x.Split(';')).Select(y => new { k = int.Parse(y[0]), t = int.Parse(y[1]) }).OrderBy(z => z.k).ToList();
+            //toConsole.ForEach(x => Console.WriteLine("{0} choose {1}\t{2} ms",messageInNumbers.Length,x.k,x.t));
+            //Console.WriteLine();
+            //Console.WriteLine();
             SetAllDecodedMessages(solutionCandidates);
             //Console.WriteLine("Encode possible solutions to messages in: {0} ms", stopwatch.ElapsedMilliseconds);
             //Console.WriteLine("Search space size: {0}", allDividers.Count + 1 ); //because the one with the whole word that doesnt need sep
@@ -174,11 +178,12 @@ namespace MobileMessageDecoder
                     int dictListIdx = allPermutations[j][k]; //j-ik permutáció k-ik eleme a szólista indexe
                     one += fp.WordsDict[numCodedMessage[k]][dictListIdx] + " ";
                 }
-                decodedSolutions.TryAdd(one);
+                
+                    decodedSolutions.TryAdd(one,1);
+               
             }
         }
         
-
         private void SetAllDivisions(string messageNumbers)
         {
             Parallel.ForEach(allDividers, oneDivider =>
@@ -186,13 +191,17 @@ namespace MobileMessageDecoder
                 var c = SplitAt(messageNumbers, oneDivider, fp.WordsDict);
                 if (c != null)
                 {
-                    solutionCandidates.TryAdd(c);
+                    
+                        solutionCandidates.TryAdd(c,1);
+                    
                 }
             });
 
             if (fp.WordsDict.ContainsKey(messageNumbers))
-                solutionCandidates.TryAdd(new string[] { messageNumbers });
-
+            {
+                    solutionCandidates.TryAdd(new string[] { messageNumbers },1);
+                
+            }
         }
 
         private void SetAllDividers(string messageNumbers)
@@ -202,11 +211,12 @@ namespace MobileMessageDecoder
                 var c = Combinations(messageNumbers.Length - 1, i);
                 foreach (var curr in c)
                 {
-                    allDividers.TryAdd(curr);
-
+                    CancellationToken token = new CancellationToken();
+                    allDividers.TryAdd(curr,1,token);
+                    token.ThrowIfCancellationRequested();
                 }
             });
-            
+
         }
 
 
@@ -273,8 +283,8 @@ namespace MobileMessageDecoder
         //https://www.videlin.eu/2016/04/10/how-to-generate-combinations-without-repetition-interatively-in-c/
         private List<int[]> Combinations(int n, int k)
         {
-            //Stopwatch s = new Stopwatch();
-            //s.Start();
+            Stopwatch s = new Stopwatch();
+            s.Start();
             List<int[]> combinations = new List<int[]>();
             var result = new int[k];
             var stack = new Stack<int>();
@@ -301,11 +311,10 @@ namespace MobileMessageDecoder
                     }
                 }
             }
-            //combinationTimes.Add(String.Format(" {1} combinations:\t{2} ms", n, k, s.ElapsedMilliseconds));
-            //lock (lockobject)
-            //{
-            //    combinationTimes.Add(String.Format("{0};{1}", k, s.ElapsedMilliseconds));
-            //}
+            lock (lockobject)
+            {
+                combinationTimes.Add(String.Format("{0};{1}", k, s.ElapsedMilliseconds));
+            }
             return combinations;
         }
     }
